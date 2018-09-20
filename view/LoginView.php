@@ -23,12 +23,19 @@ class LoginView
     public function response()
     {
         $message = "";
-        if (!empty($_POST[self::$name]) && (!empty($_POST[self::$password]))) {
-            $username = $_POST[self::$name];
-			$password = $_POST[self::$password];
-			$message = "TEST";
+
+        if ($this->loginAttempted() && $this->inputIsEmpty()) {
+            $message = "Username is missing";
         }
 
+        if (!$this->inputIsEmpty()) {
+			
+            if ($this->nameIsMissing()) {
+                $message = "Username is missing";
+            } else if ($this->passwordIsMissing()) {
+                $message = "Password is missing";
+            }
+        }
         $response = $this->generateLoginFormHTML($message);
         //$response .= $this->generateLogoutButtonHTML($message);
         return $response;
@@ -63,7 +70,7 @@ class LoginView
 					<p id="' . self::$messageId . '">' . $message . '</p>
 
 					<label for="' . self::$name . '">Username :</label>
-					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="" />
+					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="' . $this->getUserName() .'" />
 
 					<label for="' . self::$password . '">Password :</label>
 					<input type="password" id="' . self::$password . '" name="' . self::$password . '" />
@@ -77,11 +84,35 @@ class LoginView
 		';
     }
 
-    //CREATE GET-FUNCTIONS TO FETCH REQUEST VARIABLES
-    private function getRequestUserName()
+    private function inputIsEmpty(): bool
     {
-        //RETURN REQUEST VARIABLE: USERNAME
-        //
+        return empty($_POST[self::$name]) && empty($_POST[self::$password]);
     }
 
+    private function nameIsMissing(): bool
+    {
+        return empty($_POST[self::$name]);
+    }
+
+    private function loginAttempted(): bool
+    {
+        return isset($_POST[self::$login]);
+    }
+
+    private function passwordIsMissing(): bool
+    {
+        return (empty($_POST[self::$password]));
+    }
+
+    //CREATE GET-FUNCTIONS TO FETCH REQUEST VARIABLES
+    public function getUserName()
+    {
+        if (isset($_POST[self::$name])) {
+			return $_POST[self::$name];
+	}
+}
+    public function getUserPassword()
+    {
+        return $_POST[self::$name];
+    }
 }

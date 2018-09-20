@@ -8,22 +8,18 @@ class LoginController
     private $view;
     private $user;
 
-    public function __construct(\Model\User $user, \View\LoginView $view)
+    public function __construct(\Model\User $user)
     {
         $this->user = $user;
-        $this->view = $view;
+        $this->view = new \View\LoginView($this->user);
 
     }
-
     public function doLogin(): string
     {
         if ($this->view->userWantsToLogin()) {
-			$name = $this->view->getUserName();
-			$password = $this->view->getUserPassword();
-
-			$this->user->setCredentials($name, $password);
+            $name = $this->view->getUserName();
+            $this->user->setName($name);
         }
-
         return $this->view->show();
     }
 }

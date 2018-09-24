@@ -2,6 +2,8 @@
 
 namespace View;
 
+require_once 'model/Login.php';
+
 class LoginView
 {
     private static $login = 'LoginView::Login';
@@ -13,6 +15,21 @@ class LoginView
     private static $keep = 'LoginView::KeepMeLoggedIn';
     private static $messageId = 'LoginView::Message';
 
+    private $loginModel;
+
+    public $logoutMsgPresented = false;
+    public $loginMsgPresented = false;
+    public $cookieMsgPresented = false;
+    public $welcomeBackWithCookie = false;
+    public $wrongCookie = false;
+
+    public function __construct(\Model\Login $loginModel)
+    {
+        $this->loginModel = $loginModel;
+    }
+
+    // For testing
+
     /**
      * Create HTTP response
      *
@@ -22,22 +39,42 @@ class LoginView
      */
     public function response()
     {
-        $message = "";
+        $message = '';
 
-        if ($this->loginAttempted() && $this->inputIsEmpty()) {
-            $message = "Username is missing";
-        }
+        if ($this->inputIsSet()) {
 
-        if (!$this->inputIsEmpty()) {
-			
-            if ($this->nameIsMissing()) {
-                $message = "Username is missing";
-            } else if ($this->passwordIsMissing()) {
-                $message = "Password is missing";
+            $username = $this->getUserName();
+            $password = $this->getUserPassword();
+
+            if (!$username && !$password) {
+                $message = 'Username is missing';
+            } else if (!$password) {
+                $message = 'Password is missing';
+            } else if (!$username) {
+                $message = 'Username is missing';
+            } else if (!$this->loginModel->userExists($username, $password)) {
+                $message = 'Wrong name or password';
+            } else if ($this->loginModel->isLoggedIn() && !$this->keepLoggedIn() && !$this->loginMsgPresented) {
+                $message = 'Welcome';
+            } else if ($this->loginModel->isLoggedIn() && $this->keepLoggedIn() && !$this->cookieMsgPresented) {
+                $message = 'Welcome and you will be remembered';
+            } else {
+                $message = '';
             }
+        } else if ($this->userWantsToLogout() && !$this->logoutMsgPresented) {
+            $message = 'Bye bye!';
+        } else if ($this->cookiesAreSet() && $this->loginModel->isLoggedIn() && !$this->welcomeBackWithCookie) {
+            $message = 'Welcome back with cookie';
+        } else if ($this->wrongCookie) {
+            $message = 'Wrong information in cookies';
+        } else {
+            $message = "";
         }
+
+        $response = $this->loginModel->isLoggedIn() ?
+        $this->generateLogoutButtonHTML($message) :
         $response = $this->generateLoginFormHTML($message);
-        //$response .= $this->generateLogoutButtonHTML($message);
+
         return $response;
     }
 
@@ -70,7 +107,7 @@ class LoginView
 					<p id="' . self::$messageId . '">' . $message . '</p>
 
 					<label for="' . self::$name . '">Username :</label>
-					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="' . $this->getUserName() .'" />
+					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="' . $this->getUserName() . '" />
 
 					<label for="' . self::$password . '">Password :</label>
 					<input type="password" id="' . self::$password . '" name="' . self::$password . '" />
@@ -84,35 +121,85 @@ class LoginView
 		';
     }
 
-    private function inputIsEmpty(): bool
+    public function userWantsToLogin(): bool
     {
-        return empty($_POST[self::$name]) && empty($_POST[self::$password]);
+        if (isset($_POST[self::$login])) {
+            return true;
+        }
+        return false;
     }
 
-    private function nameIsMissing(): bool
+    public function userWantsToLogout(): bool
     {
-        return empty($_POST[self::$name]);
+        return isset($_POST[self::$logout]);
     }
 
-    private function loginAttempted(): bool
+    public function inputIsSet(): bool
     {
-        return isset($_POST[self::$login]);
+        return isset($_POST[self::$name]) && isset($_POST[self::$password]);
     }
 
-    private function passwordIsMissing(): bool
+    public function keepLoggedIn(): bool
     {
-        return (empty($_POST[self::$password]));
+        if (isset($_POST[self::$keep])) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    //CREATE GET-FUNCTIONS TO FETCH REQUEST VARIABLES
+    public function setCookies($tempPassword, $expiryDate)
+    {
+        setcookie(self::$cookieName, $this->getUserName(), $expiryDate);
+        setcookie(self::$cookiePassword, $tempPassword, $expiryDate);
+    }
+
+    public function clearCookies()
+    {
+        if ($this->cookiesAreSet()) {
+            setcookie(self::$cookieName, '', time() - 3600);
+            setcookie(self::$cookiePassword, '', time() - 3600);
+        }
+    }
+
+    public function cookiesAreSet(): bool
+    {
+        return isset($_COOKIE[self::$cookieName]) &&
+        isset($_COOKIE[self::$cookiePassword]);
+    }
+
+    public function generateRandomToken()
+    {
+        $strLength = 30;
+
+        return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $strLength);
+    }
+
+    //CREATE GET-FUNCTIONS TO FETCH POST VARIABLES
     public function getUserName()
     {
         if (isset($_POST[self::$name])) {
-			return $_POST[self::$name];
-	}
-}
+            return $_POST[self::$name];
+        }
+    }
     public function getUserPassword()
     {
-        return $_POST[self::$name];
+        if (isset($_POST[self::$password])) {
+            return $_POST[self::$password];
+        }
+    }
+
+    public function getCookiePassword()
+    {
+        if (isset($_COOKIE[self::$cookiePassword])) {
+            return $_COOKIE[self::$cookiePassword];
+        }
+    }
+    public function getCookieName()
+    {
+        if (isset($_COOKIE[self::$cookieName])) {
+            return $_COOKIE[self::$cookieName];
+        }
+
     }
 }

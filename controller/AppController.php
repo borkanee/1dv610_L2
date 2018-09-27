@@ -68,6 +68,19 @@ class AppController
                 $this->loginModel->setLoggedOut();
             }
         }
+        if ($this->registerView->userWantsToRegister()) {
+            $username = $this->registerView->getUserName();
+            $password = $this->registerView->getUserPassword();
+            $passwordRepeat = $this->registerView->getUserPasswordRepeat();
+            $successfulRegistration = $this->loginModel->storeUser($username, $password, $passwordRepeat);
+            if ($successfulRegistration) {
+                unset($_GET["register"]);
+                header("Location: http://39cbe94e.ngrok.io/1dv610_L2/");
+                $_SESSION['registeredUser'] = $username;
+                exit;
+            }
+
+        }
 
         return $this->layoutView->render($this->loginModel, $this->loginView, $this->dateTimeView, $this->registerView);
     }

@@ -10,11 +10,13 @@ class LayoutView
         $navLink = '<a href="?register">Register a new user</a>';
         $pageToRender = $loginView->response();
 
-        if (isset($_GET['register'])) {
+        if (isset($_GET["register"])) {
             $navLink = '<a href="?">Back to login</a>';
             $pageToRender = $registerView->response();
+            unset($_GET["register"]);
 
-        } else if ($loginModel->isLoggedIn()) {
+        }
+        if ($loginModel->isLoggedIn()) {
             $navLink = null;
         }
 

@@ -68,6 +68,21 @@ class Login
         mysqli_query($this->db, $insert);
     }
 
+    public function storeUser($username, $password, $passwordRepeat)
+    {
+        if (strlen($username) < 3
+            || strlen($password) < 6
+            || $password != $passwordRepeat
+            || $this->userExistsReg($username)
+            || preg_match("/^[a-zA-Z0-9]+$/", $username) == false) {
+            return false;
+        }
+        
+        $insert = "INSERT INTO users (username, password) VALUES ('$username', '$password')";
+        mysqli_query($this->db, $insert);
+        return true;
+    }
+
     public function isLoggedIn(): bool
     {
         return isset($_SESSION[self::$SESSION_KEY]) && $_SESSION[self::$SESSION_KEY] === true;

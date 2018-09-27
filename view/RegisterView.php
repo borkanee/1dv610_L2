@@ -40,11 +40,12 @@ class RegisterView
             if (strlen($password) < 6) {
                 $message .= 'Password has too few characters, at least 6 characters. ';
             }
-            if ($username && !$password) {
-                $message = 'Password has too few characters, at least 6 characters. ';
-            }
             if ($password != $passwordRepeat) {
                 $message = 'Passwords do not match.';
+            }
+            if (preg_match("/^[a-zA-Z0-9]+$/", $username) == false) {
+                $message .= 'Username contains invalid characters.';
+                $_POST[self::$name] = strip_tags($_POST[self::$name]);
             }
             if ($this->loginModel->userExistsReg($username)) {
                 $message = 'User exists, pick another username.';
@@ -63,7 +64,7 @@ class RegisterView
     private function generateRegisterFormHTML($message)
     {
         return '
-			<form method="post" >
+			<form method="post">
 				<fieldset>
 					<legend>Register a new user - Write username and password</legend>
 					<p id="' . self::$messageId . '">' . $message . '</p>
@@ -105,5 +106,9 @@ class RegisterView
         if (isset($_POST[self::$passwordRepeat])) {
             return $_POST[self::$passwordRepeat];
         }
+    }
+    public function userWantsToRegister(): bool
+    {
+        return isset($_GET["register"]);
     }
 }

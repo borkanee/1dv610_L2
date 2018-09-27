@@ -37,6 +37,7 @@ class LoginView
      */
     public function response()
     {
+
         $message = '';
 
         if ($this->inputIsSet()) {
@@ -65,6 +66,9 @@ class LoginView
             $message = 'Welcome back with cookie';
         } else if ($this->wrongCookie) {
             $message = 'Wrong information in cookies';
+        } else if (isset($_SESSION['registeredUser'])) {
+            $message = "Registered new user.";
+            $_POST[self::$name] = $_SESSION['registeredUser'];
         } else {
             $message = "";
         }

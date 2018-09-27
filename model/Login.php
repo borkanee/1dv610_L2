@@ -36,6 +36,18 @@ class Login
         }
     }
 
+    public function userExistsReg($username): bool
+    {
+        $query = "SELECT * FROM users WHERE username='$username'";
+        $result = mysqli_query($this->db, $query);
+
+        if (mysqli_num_rows($result) > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     //TODO: Maybe move Cookie storage to own class as well...
     public function cookiesAreValid($username, $cookiePassword, $date): bool
     {

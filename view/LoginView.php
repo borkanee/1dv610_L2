@@ -28,14 +28,12 @@ class LoginView
         $this->loginModel = $loginModel;
     }
 
-    // For testing
-
     /**
      * Create HTTP response
      *
      * Should be called after a login attempt has been determined
      *
-     * @return  void BUT writes to standard output and cookies!
+     * @return void BUT writes to standard output and cookies!
      */
     public function response()
     {
@@ -63,7 +61,7 @@ class LoginView
             }
         } else if ($this->userWantsToLogout() && !$this->logoutMsgPresented) {
             $message = 'Bye bye!';
-        } else if ($this->cookiesAreSet() && $this->loginModel->isLoggedIn() && !$this->welcomeBackWithCookie) {
+        } else if ($this->cookiesAreSet() && $this->loginModel->isLoggedIn() && $this->welcomeBackWithCookie) {
             $message = 'Welcome back with cookie';
         } else if ($this->wrongCookie) {
             $message = 'Wrong information in cookies';
@@ -175,7 +173,6 @@ class LoginView
         return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $strLength);
     }
 
-    //CREATE GET-FUNCTIONS TO FETCH POST VARIABLES
     public function getUserName()
     {
         if (isset($_POST[self::$name])) {

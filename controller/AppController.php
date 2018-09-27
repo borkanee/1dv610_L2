@@ -5,6 +5,7 @@ namespace Controller;
 require_once 'view/LoginView.php';
 require_once 'view/DateTimeView.php';
 require_once 'view/LayoutView.php';
+require_once 'view/RegisterView.php';
 
 class AppController
 {
@@ -12,6 +13,7 @@ class AppController
     private $dateTimeView;
     private $layoutView;
     private $loginModel;
+    private $registerView;
 
     public function __construct()
     {
@@ -19,11 +21,12 @@ class AppController
         $this->loginView = new \View\LoginView($this->loginModel);
         $this->dateTimeView = new \View\DateTimeView();
         $this->layoutView = new \View\LayoutView($this->loginModel);
+        $this->registerView = new \View\RegisterView($this->loginModel);
     }
 
     public function start()
     {
-        //TODO: MOVE ALL CODE TO OWN FUNCTIONS FOR EASIER READ > TO MANY IF-STATEMENTS....
+        //TODO: MOVE ALL CODE TO OWN FUNCTIONS FOR EASIER READ > TOO MANY IF-STATEMENTS....
         if ($this->loginView->cookiesAreSet() && $this->loginModel->isLoggedIn() === false) {
             $cookieName = $this->loginView->getCookieName();
             $cookiePassword = $this->loginView->getCookiePassword();
@@ -66,6 +69,6 @@ class AppController
             }
         }
 
-        return $this->layoutView->render($this->loginModel, $this->loginView, $this->dateTimeView);
+        return $this->layoutView->render($this->loginModel, $this->loginView, $this->dateTimeView, $this->registerView);
     }
 }

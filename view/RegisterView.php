@@ -10,11 +10,11 @@ class RegisterView
     private static $passwordRepeat = 'RegisterView::PasswordRepeat';
     private static $messageId = 'RegisterView::Message';
 
-    private $loginModel;
+    private $registerModel;
 
-    public function __construct(\Model\Login $loginModel)
+    public function __construct(\Model\Register $registerModel)
     {
-        $this->loginModel = $loginModel;
+        $this->registerModel = $registerModel;
     }
 
     /**
@@ -47,7 +47,7 @@ class RegisterView
                 $message .= 'Username contains invalid characters.';
                 $_POST[self::$name] = strip_tags($_POST[self::$name]);
             }
-            if ($this->loginModel->userExistsReg($username)) {
+            if ($this->registerModel->userExists($username)) {
                 $message = 'User exists, pick another username.';
             }
         }

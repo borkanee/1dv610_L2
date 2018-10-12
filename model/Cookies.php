@@ -2,6 +2,8 @@
 
 namespace Model;
 
+require_once 'model/Database.php';
+
 class Cookies
 {
     private $db;

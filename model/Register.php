@@ -25,7 +25,7 @@ class Register
         }
     }
 
-    public function storeUser($username, $password, $passwordRepeat)
+    public function storeUser($username, $password, $passwordRepeat): bool
     {
         if (strlen($username) < 3
             || strlen($password) < 6

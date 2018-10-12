@@ -4,19 +4,31 @@ namespace View;
 
 class LayoutView
 {
+    private $loginModel;
+    private $loginView;
+    private $dateView;
+    private $registerView;
 
-    public function render(\model\Login $loginModel, LoginView $loginView, DateTimeView $dateView, RegisterView $registerView)
+    public function __construct(\model\Login $loginModel, LoginView $loginView, DateTimeView $dateView, RegisterView $registerView)
+    {
+        $this->loginModel = $loginModel;
+        $this->loginView = $loginView;
+        $this->dateView = $dateView;
+        $this->registerView = $registerView;
+    }
+
+    public function render()
     {
         $navLink = '<a href="?register">Register a new user</a>';
-        $pageToRender = $loginView->response();
+        $pageToRender = $this->loginView->response();
 
         if (isset($_GET["register"])) {
             $navLink = '<a href="?">Back to login</a>';
-            $pageToRender = $registerView->response();
+            $pageToRender = $this->registerView->response();
             unset($_GET["register"]);
 
         }
-        if ($loginModel->isLoggedIn()) {
+        if ($this->loginModel->isLoggedIn()) {
             $navLink = null;
         }
 
@@ -29,21 +41,21 @@ class LayoutView
         <body>
           <h1>Assignment 2</h1>
           ' . $navLink . '
-          ' . $this->renderIsLoggedIn($loginModel) . '
+          ' . $this->renderIsLoggedIn() . '
 
           <div class="container">
               ' . $pageToRender . '
 
-              ' . $dateView->show() . '
+              ' . $this->dateView->show() . '
           </div>
          </body>
       </html>
     ';
     }
 
-    private function renderIsLoggedIn($loginModel)
+    private function renderIsLoggedIn()
     {
-        if ($loginModel->isLoggedIn()) {
+        if ($this->loginModel->isLoggedIn()) {
             return '<h2>Logged in</h2>';
         } else {
             return '<h2>Not logged in</h2>';

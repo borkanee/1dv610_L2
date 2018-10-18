@@ -24,7 +24,7 @@ class RegisterController
 
             if ($successfulRegistration) {
                 unset($_GET["register"]);
-                header("Location: http://611afbea.ngrok.io/1dv610_L2/");
+                header("Location: http://8ed31d3e.ngrok.io/1dv610_L2/");
                 $_SESSION['registeredUser'] = $username;
                 exit;
             }

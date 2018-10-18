@@ -8,13 +8,15 @@ class LayoutView
     private $loginView;
     private $dateView;
     private $registerView;
+    private $snippetView;
 
-    public function __construct(\model\Login $loginModel, LoginView $loginView, DateTimeView $dateView, RegisterView $registerView)
+    public function __construct(\model\Login $loginModel, LoginView $loginView, DateTimeView $dateView, RegisterView $registerView, SnippetView $snippetView)
     {
         $this->loginModel = $loginModel;
         $this->loginView = $loginView;
         $this->dateView = $dateView;
         $this->registerView = $registerView;
+        $this->snippetView = $snippetView;
     }
 
     public function render()
@@ -29,7 +31,13 @@ class LayoutView
 
         }
         if ($this->loginModel->isLoggedIn()) {
-            $navLink = null;
+            $navLink = '<a href="?snippets">Snippets</a>';
+        }
+
+        if (isset($_GET["snippets"])) {
+            $navLink = '<a href="?">Back to homepage</a>';
+            $pageToRender = $this->snippetView->response();
+            unset($_GET["snippets"]);
         }
 
         echo '<!DOCTYPE html>

@@ -109,6 +109,6 @@ class RegisterView
     }
     public function userWantsToRegister(): bool
     {
-        return isset($_GET["register"]);
+        return isset($_POST[self::$register]);
     }
 }

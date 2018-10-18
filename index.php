@@ -4,12 +4,13 @@ if (!isset($_SESSION)) {
     session_start();
 }
 
-
 require_once 'model/Cookies.php';
 require_once 'model/Login.php';
 require_once 'model/Register.php';
+require_once 'model/Snippets.php';
 
 require_once 'controller/AppController.php';
+require_once 'controller/SnippetController.php';
 require_once 'controller/LoginController.php';
 require_once 'controller/RegisterController.php';
 
@@ -27,6 +28,7 @@ ini_set('display_errors', 'On');
 $loginModel = new \Model\Login();
 $registerModel = new \Model\Register();
 $cookieModel = new \Model\Cookies();
+$snippetModel = new \Model\Snippets();
 
 //CREATE OBJECTS OF THE VIEWS
 $snippetView = new \View\SnippetView();
@@ -36,9 +38,10 @@ $registerView = new \View\RegisterView($registerModel);
 $layoutView = new \View\LayoutView($loginModel, $loginView, $dtv, $registerView, $snippetView);
 
 //CREATE OBJECTS OF THE CONTROLLERS
+$snippetController = new \Controller\SnippetController($snippetView, $loginModel, $snippetModel);
 $loginController = new \Controller\LoginController($loginModel, $cookieModel, $loginView);
 $registerController = new \Controller\RegisterController($registerModel, $registerView);
-$appController = new \Controller\AppController($loginController, $registerController, $layoutView);
+$appController = new \Controller\AppController($loginController, $registerController, $snippetController, $layoutView);
 
 // START
 $appController->start();

@@ -6,7 +6,9 @@ require_once 'model/Database.php';
 
 class Login
 {
-    private static $SESSION_KEY = __NAMESPACE__ . __CLASS__ . "userLoggedIn";
+    private static $SESSION_LOGGEDIN = __NAMESPACE__ . __CLASS__ . "userLoggedIn";
+    private static $SESSION_USER = __NAMESPACE__ . __CLASS__ . "username";
+
     private $db;
 
     public function __construct()
@@ -14,14 +16,20 @@ class Login
         $this->db = new \Model\Database();
     }
 
-    public function isLoggedIn(): bool
+    public function getSessionUser()
     {
-        return isset($_SESSION[self::$SESSION_KEY]) && $_SESSION[self::$SESSION_KEY] === true;
+        return $_SESSION[self::$SESSION_USER];
     }
 
-    public function setLoggedIn()
+    public function isLoggedIn(): bool
     {
-        $_SESSION[self::$SESSION_KEY] = true;
+        return isset($_SESSION[self::$SESSION_LOGGEDIN]) && $_SESSION[self::$SESSION_LOGGEDIN] === true;
+    }
+
+    public function setLoggedIn($username)
+    {
+        $_SESSION[self::$SESSION_LOGGEDIN] = true;
+        $_SESSION[self::$SESSION_USER] = $username;
     }
 
     public function setLoggedOut()

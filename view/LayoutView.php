@@ -31,7 +31,7 @@ class LayoutView
 
         }
         if ($this->loginModel->isLoggedIn()) {
-            $navLink = '<a href="?snippets">Snippets</a>';
+            $navLink = '<a href="?snippets">My Snippets</a>';
         }
 
         if (isset($_GET["snippets"])) {

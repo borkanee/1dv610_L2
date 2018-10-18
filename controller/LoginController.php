@@ -45,7 +45,7 @@ class LoginController
         $cookiesAreValid = $this->cookieModel->cookiesAreValid($this->loginView->getCookieName(), $this->loginView->getCookiePassword(), time());
 
         if ($cookiesAreValid) {
-            $this->loginModel->setLoggedIn();
+            $this->loginModel->setLoggedIn($this->loginView->getCookieName());
             $this->isLoggedIn = true;
             $this->loginView->welcomeBackWithCookie = true;
         } else {
@@ -60,7 +60,7 @@ class LoginController
         $password = $this->loginView->getUserPassword();
 
         if ($this->loginModel->userExists($name, $password)) {
-            $this->loginModel->setLoggedIn();
+            $this->loginModel->setLoggedIn($name);
             $this->isLoggedIn = true;
             if ($this->keepLoggedIn) {
                 $cookieName = $name;

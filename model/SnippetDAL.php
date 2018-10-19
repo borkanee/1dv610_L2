@@ -24,11 +24,11 @@ class SnippetDAL
         $queryString = "SELECT snippetname, snippetcode FROM snippets WHERE username='$username'";
         $result = $this->db->querySelect($queryString);
 
-        $snippetArray = [];
+        $snippets = [];
 
         while ($row = $result->fetch_object()) {
-            array_push($snippetArray, $row);
+            array_push($snippets, $row);
         }
-        return array_reverse($snippetArray);
+        return array_reverse($snippets); // Reverse so that latest snippet is on top.
     }
 }

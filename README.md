@@ -19,6 +19,13 @@ You also have to add 3 tables to your database:
 * cookies (username, cookiepassword, expirydate)
 * snippets (username, snippetname, snippetcode)
 
+# NOTES
+There are a couple of things I would like to mention:
+- I have not prioritized security due to lack of time, this is something I would have liked to implement better, for example: hashing, HTTPS, CSP, XSS etc.
+- I have focused on trying to structure the code better with smaller classes (high cohesion / low coupling) and of course function/variable-naming. 
+- The Snippet-part of the application might not be that big but in terms of time spent and code written, I'm still satisfied with the result.
+- Righ now users can only save and view snippets but not change/delete. Making it fully CRUD would be more convenient of course.
+
 # ADDITIONAL USE CASES
 ## UC5 Save Snippet
 ### Preconditions

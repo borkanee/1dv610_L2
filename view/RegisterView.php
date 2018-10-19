@@ -12,7 +12,7 @@ class RegisterView
     private static $passwordRepeat = 'RegisterView::PasswordRepeat';
     private static $messageId = 'RegisterView::Message';
 
-    private static $redirectLocation = 'http://b00e9364.ngrok.io/1dv610_L2/?user=';
+    private static $redirectLocation = 'http://104.248.17.234/?user=';
 
     private $message = "";
 

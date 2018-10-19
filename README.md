@@ -19,7 +19,7 @@ You also have to add 3 tables to your database:
 * cookies (username, cookiepassword, expirydate)
 * snippets (username, snippetname, snippetcode)
 
-# USE CASES
+# ADDITIONAL USE CASES
 ## UC5 Save Snippet
 ### Preconditions
 A user is authenticated. Ex. UC1, UC3

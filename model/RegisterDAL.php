@@ -4,20 +4,18 @@ namespace Model;
 
 require_once 'model/Database.php';
 
-class Register
+class RegisterDAL
 {
     private $db;
 
-    public function __construct()
+    public function __construct(Database $db)
     {
-        $this->db = new \Model\Database();
+        $this->db = $db;
     }
 
     public function userExists(NewUser $user): bool
     {
-        $name = $user->getName();
-
-        $queryString = "SELECT * FROM users WHERE username='$name'";
+        $queryString = "SELECT * FROM users WHERE username='" . $user->getName() . "'";
         $result = $this->db->querySelect($queryString);
 
         if (mysqli_num_rows($result) > 0) {
@@ -29,10 +27,7 @@ class Register
 
     public function storeUser(NewUser $user): bool
     {
-        $name = $user->getName();
-        $password = $user->getPassword();
-
-        $queryString = "INSERT INTO users (username, password) VALUES ('$name', '$password')";
+        $queryString = "INSERT INTO users (username, password) VALUES ('" . $user->getName() . "', '" . $user->getPassword() . "')";
         $this->db->queryManage($queryString);
         return true;
     }

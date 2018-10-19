@@ -2,6 +2,8 @@
 
 namespace View;
 
+require_once 'model/Snippet.php';
+
 class SnippetView
 {
     private static $snippetForm = 'SnippetView::SnippetForm';
@@ -11,43 +13,29 @@ class SnippetView
     private static $messageId = 'SnippetView::Message';
 
     private $userSnippets;
-
-    public function __construct()
-    {
-    }
+    private $message = "";
 
     public function response()
     {
-        $message = "";
-        $response = $this->generateSnippetHTML($message);
-
-        return $response;
+        return $this->generateSnippetHTML();
     }
 
-    /**
-     * Generate HTML code on the output buffer for the snippet view
-     * @param $message, String output message
-     * @return void, BUT writes to standard output!
-     */
-    private function generateSnippetHTML($message)
+    public function userWantsToSaveSnippet(): bool
     {
-        return '
-            <fieldset>
-                <form method="post" id="' . self::$snippetForm . '">
-                    <legend>Save a new snippet - Write snippet name and some code</legend>
-                    <p id="' . self::$messageId . '">' . $message . '</p>
+        return isset($_POST[self::$snippetSubmit]);
+    }
 
-                    <label for="' . self::$snippetName . '">Snippet name :</label>
-                    <input type="text" id="' . self::$snippetName . '" name="' . self::$snippetName . '" value="" required/>
-                </form>
-                <br>
-                <textarea name="' . self::$snippetCode . '" form="' . self::$snippetForm . '" wrap="hard" rows="12" cols="60" placeholder="Code here..." required></textarea>
-                <br>
-                <input type="submit" name="' . self::$snippetSubmit . '" value="Save" form="' . self::$snippetForm . '" />
-            </fieldset>
-
-            ' . $this->userSnippets . '
-		';
+    public function getSnippet()
+    {
+        try {
+            return new \Model\Snippet($this->getSnippetName(), $this->getSnippetCode());
+        } catch (\Model\EmptySnippetException $e) {
+            $this->message = 'Name and code is missing.';
+        } catch (\Model\SnippetNameShortException $e) {
+            $this->message = 'Snippet name has too few characters, at least 3 characters.';
+        } catch (\Model\SnippeCodeMissingException $e) {
+            $this->message = 'Snippet code is missing.';
+        }
     }
 
     public function setUserSnippets($snippets)
@@ -63,24 +51,38 @@ class SnippetView
         }
     }
 
-    public function getSnippetName()
+    private function generateSnippetHTML()
+    {
+        return '
+            <fieldset>
+                <form method="post" id="' . self::$snippetForm . '">
+                    <legend>Save a new snippet - Write snippet name and some code</legend>
+                    <p id="' . self::$messageId . '">' . $this->message . '</p>
+
+                    <label for="' . self::$snippetName . '">Snippet name :</label>
+                    <input type="text" id="' . self::$snippetName . '" name="' . self::$snippetName . '" value="" />
+                </form>
+                <br>
+                <textarea name="' . self::$snippetCode . '" form="' . self::$snippetForm . '" wrap="hard" rows="12" cols="60" placeholder="Code here..." ></textarea>
+                <br>
+                <input type="submit" name="' . self::$snippetSubmit . '" value="Save" form="' . self::$snippetForm . '" />
+            </fieldset>
+
+            ' . $this->userSnippets . '
+		';
+    }
+
+    private function getSnippetName()
     {
         if (isset($_POST[self::$snippetName])) {
             return $_POST[self::$snippetName];
         }
     }
 
-    public function getSnippetCode()
+    private function getSnippetCode()
     {
         if (isset($_POST[self::$snippetCode])) {
             return $_POST[self::$snippetCode];
         }
     }
-
-    public function userWantsToSaveSnippet(): bool
-    {
-        return isset($_POST[self::$snippetSubmit]);
-    }
-
-    public function getSnippet() {}
 }

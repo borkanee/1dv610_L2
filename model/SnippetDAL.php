@@ -2,20 +2,20 @@
 
 namespace Model;
 
-require_once 'model/Database.php';
+require_once 'model/Snippet.php';
 
-class Snippets
+class SnippetDAL
 {
     private $db;
 
-    public function __construct()
+    public function __construct(Database $db)
     {
-        $this->db = new \Model\Database();
+        $this->db = $db;
     }
 
-    public function storeSnippet($username, $snippetName, $snippetCode)
+    public function storeSnippet(Snippet $snippet, $username)
     {
-        $queryString = "INSERT INTO snippets (username, snippetname, snippetcode) VALUES ('$username', '$snippetName', '$snippetCode')";
+        $queryString = "INSERT INTO snippets (username, snippetname, snippetcode) VALUES ('$username', '" . $snippet->getName() . "', '" . $snippet->getCode() . "')";
         $this->db->queryManage($queryString);
     }
 
@@ -23,12 +23,12 @@ class Snippets
     {
         $queryString = "SELECT snippetname, snippetcode FROM snippets WHERE username='$username'";
         $result = $this->db->querySelect($queryString);
-        
+
         $snippetArray = [];
 
         while ($row = $result->fetch_object()) {
             array_push($snippetArray, $row);
         }
-        return $snippetArray;
+        return array_reverse($snippetArray);
     }
 }

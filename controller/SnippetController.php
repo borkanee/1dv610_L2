@@ -5,26 +5,29 @@ namespace Controller;
 class SnippetController
 {
     private $snippetView;
-    private $loginModel;
-    private $snippetModel;
+    private $sessionModel;
+    private $snippetDAL;
 
-    public function __construct(\view\SnippetView $snippetView, \model\Login $loginModel, \model\Snippets $snippetModel)
+    public function __construct(\view\SnippetView $snippetView, \model\SessionModel $sessionModel, \model\SnippetDAL $snippetDAL)
     {
         $this->snippetView = $snippetView;
-        $this->loginModel = $loginModel;
-        $this->snippetModel = $snippetModel;
+        $this->sessionModel = $sessionModel;
+        $this->snippetDAL = $snippetDAL;
     }
 
     public function manageSnippets(): void
     {
-        if ($this->loginModel->isLoggedIn()) {
+        if ($this->sessionModel->isLoggedIn()) {
+            $sessionUser = $this->sessionModel->getSessionUser();
 
             if ($this->snippetView->userWantsToSaveSnippet()) {
-                $snippetName = $this->snippetView->getSnippetName();
-                $snippetCode = $this->snippetView->getSnippetCode();
-                $this->snippetModel->storeSnippet($this->loginModel->getSessionUser(), $snippetName, $snippetCode);
+                $snippet = $this->snippetView->getSnippet();
+
+                if ($snippet) {
+                    $this->snippetDAL->storeSnippet($snippet, $sessionUser);
+                }
             }
-            $this->snippetView->setUserSnippets($this->snippetModel->getSnippets($this->loginModel->getSessionUser()));
+            $this->snippetView->setUserSnippets($this->snippetDAL->getSnippets($sessionUser));
         }
     }
 }

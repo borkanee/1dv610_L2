@@ -14,54 +14,11 @@ class RegisterView
 
     private static $redirectLocation = 'http://b00e9364.ngrok.io/1dv610_L2/?user=';
 
-    private $registerModel;
-    private $message;
+    private $message = "";
 
-    public function __construct(\Model\Register $registerModel)
-    {
-        $this->registerModel = $registerModel;
-    }
-
-    /**
-     * Create HTTP response
-     *
-     * Should be called after a register attempt has been determined
-     *
-     * @return  void BUT writes to standard output and cookies!
-     */
     public function response()
     {
-        $response = $this->generateRegisterFormHTML();
-
-        return $response;
-    }
-
-    /**
-     * Generate HTML code on the output buffer for the register form
-     * @param $message, String output message
-     * @return void, BUT writes to standard output!
-     */
-    private function generateRegisterFormHTML()
-    {
-        return '
-			<form method="post">
-				<fieldset>
-					<legend>Register a new user - Write username and password</legend>
-					<p id="' . self::$messageId . '">' . $this->message . '</p>
-
-					<label for="' . self::$name . '">Username :</label>
-					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="' . $this->getUserName() . '" />
-
-					<label for="' . self::$password . '">Password :</label>
-					<input type="password" id="' . self::$password . '" name="' . self::$password . '" />
-
-					<label for="' . self::$password . '">RepeatPassword :</label>
-					<input type="password" id="' . self::$passwordRepeat . '" name="' . self::$passwordRepeat . '" />
-
-					<input type="submit" name="' . self::$register . '" value="register" />
-				</fieldset>
-			</form>
-		';
+        return $this->generateRegisterFormHTML();
     }
 
     public function userWantsToRegister(): bool
@@ -87,15 +44,38 @@ class RegisterView
         }
     }
 
+    public function setMessage($message)
+    {
+        $this->message = $message;
+    }
+
     public function setRedirect($username)
     {
         header('Location: ' . self::$redirectLocation . $username . '');
         exit;
     }
 
-    public function setMessage($message)
+    private function generateRegisterFormHTML()
     {
-        $this->message = $message;
+        return '
+			<form method="post">
+				<fieldset>
+					<legend>Register a new user - Write username and password</legend>
+					<p id="' . self::$messageId . '">' . $this->message . '</p>
+
+					<label for="' . self::$name . '">Username :</label>
+					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="' . $this->getUserName() . '" />
+
+					<label for="' . self::$password . '">Password :</label>
+					<input type="password" id="' . self::$password . '" name="' . self::$password . '" />
+
+					<label for="' . self::$password . '">RepeatPassword :</label>
+					<input type="password" id="' . self::$passwordRepeat . '" name="' . self::$passwordRepeat . '" />
+
+					<input type="submit" name="' . self::$register . '" value="register" />
+				</fieldset>
+			</form>
+		';
     }
 
     private function getUserName()

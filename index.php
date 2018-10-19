@@ -4,10 +4,11 @@ if (!isset($_SESSION)) {
     session_start();
 }
 
-require_once 'model/Cookies.php';
-require_once 'model/Login.php';
-require_once 'model/Register.php';
-require_once 'model/Snippets.php';
+require_once 'model/CookieDAL.php';
+require_once 'model/SessionModel.php';
+require_once 'model/RegisterDAL.php';
+require_once 'model/SnippetDAL.php';
+require_once 'model/Database.php';
 
 require_once 'controller/AppController.php';
 require_once 'controller/SnippetController.php';
@@ -25,24 +26,24 @@ error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 
 //CREATE OBJECTS OF MODELS
-$loginModel = new \Model\Login();
-$registerModel = new \Model\Register();
-$cookieModel = new \Model\Cookies();
-$snippetModel = new \Model\Snippets();
+$database = new \Model\Database();
+$sessionModel = new \Model\SessionModel($database);
+$registerDAL = new \Model\RegisterDAL($database);
+$cookieDAL = new \Model\CookieDAL($database);
+$snippetDAL = new \Model\SnippetDAL($database);
 
 //CREATE OBJECTS OF THE VIEWS
 $message = new \View\Message();
 $snippetView = new \View\SnippetView();
-$loginView = new \View\LoginView($loginModel);
+$loginView = new \View\LoginView($sessionModel);
 $dtv = new \View\DateTimeView();
-$registerView = new \View\RegisterView($registerModel);
-$layoutView = new \View\LayoutView($loginModel, $loginView, $dtv, $registerView, $snippetView);
+$registerView = new \View\RegisterView($registerDAL);
+$layoutView = new \View\LayoutView($sessionModel, $loginView, $dtv, $registerView, $snippetView);
 
 //CREATE OBJECTS OF THE CONTROLLERS
-$snippetController = new \Controller\SnippetController($snippetView, $loginModel, $snippetModel);
-$loginController = new \Controller\LoginController($loginModel, $cookieModel, $loginView);
-$registerController = new \Controller\RegisterController($registerModel, $registerView, $message);
+$snippetController = new \Controller\SnippetController($snippetView, $sessionModel, $snippetDAL);
+$loginController = new \Controller\LoginController($sessionModel, $cookieDAL, $loginView, $message);
+$registerController = new \Controller\RegisterController($registerDAL, $registerView, $message);
 $appController = new \Controller\AppController($loginController, $registerController, $snippetController, $layoutView);
 
-// START
 $appController->start();

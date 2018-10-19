@@ -7,19 +7,21 @@ class LayoutView
     private static $registerLink = '<a href="?register">Register a new user</a>';
     private static $loginLink = '<a href="?">Back to login</a>';
     private static $snippetsLink = '<a href="?snippets">My Snippets</a>';
-
     private static $regiserQuery = 'register';
     private static $snippetsQuery = 'snippets';
 
-    private $loginModel;
+    private $sessionModel;
     private $loginView;
     private $dateView;
     private $registerView;
     private $snippetView;
 
-    public function __construct(\model\Login $loginModel, LoginView $loginView, DateTimeView $dateView, RegisterView $registerView, SnippetView $snippetView)
+    private $navLink;
+    private $pageToRender;
+
+    public function __construct(\model\SessionModel $sessionModel, LoginView $loginView, DateTimeView $dateView, RegisterView $registerView, SnippetView $snippetView)
     {
-        $this->loginModel = $loginModel;
+        $this->sessionModel = $sessionModel;
         $this->loginView = $loginView;
         $this->dateView = $dateView;
         $this->registerView = $registerView;
@@ -28,24 +30,7 @@ class LayoutView
 
     public function render()
     {
-        $navLink = self::$registerLink;
-        $pageToRender = $this->loginView->response();
-
-        if ($this->loginModel->isLoggedIn()) {
-            $navLink = self::$snippetsLink;
-        }
-
-        if (isset($_GET[self::$regiserQuery])) {
-            $navLink = self::$loginLink;
-            $pageToRender = $this->registerView->response();
-            unset($_GET[self::$regiserQuery]);
-
-        }
-        if (isset($_GET[self::$snippetsQuery])) {
-            $navLink = self::$loginLink;
-            $pageToRender = $this->snippetView->response();
-            unset($_GET[self::$snippetsQuery]);
-        }
+        $this->setNavAndPage();
 
         echo '<!DOCTYPE html>
       <html>
@@ -55,11 +40,11 @@ class LayoutView
         </head>
         <body>
           <h1>Assignment 2</h1>
-          ' . $navLink . '
+          ' . $this->navLink . '
           ' . $this->renderIsLoggedIn() . '
 
           <div class="container">
-              ' . $pageToRender . '
+              ' . $this->pageToRender . '
 
               ' . $this->dateView->show() . '
           </div>
@@ -70,10 +55,32 @@ class LayoutView
 
     private function renderIsLoggedIn()
     {
-        if ($this->loginModel->isLoggedIn()) {
+        if ($this->sessionModel->isLoggedIn()) {
             return '<h2>Logged in</h2>';
         } else {
             return '<h2>Not logged in</h2>';
+        }
+    }
+
+    private function setNavAndPage()
+    {
+        $this->navLink = self::$registerLink;
+        $this->pageToRender = $this->loginView->response();
+
+        if ($this->sessionModel->isLoggedIn()) {
+            $this->navLink = self::$snippetsLink;
+        }
+
+        if (isset($_GET[self::$regiserQuery])) {
+            $this->navLink = self::$loginLink;
+            $this->pageToRender = $this->registerView->response();
+            unset($_GET[self::$regiserQuery]);
+
+        }
+        if (isset($_GET[self::$snippetsQuery])) {
+            $this->navLink = self::$loginLink;
+            $this->pageToRender = $this->snippetView->response();
+            unset($_GET[self::$snippetsQuery]);
         }
     }
 }

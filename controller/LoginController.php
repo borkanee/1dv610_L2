@@ -23,7 +23,7 @@ class LoginController
         $this->message = $message;
     }
 
-    public function manageLogin(): void
+    public function manageLogin()
     {
         $this->isLoggedIn = $this->sessionModel->isLoggedIn();
         $this->keepLoggedIn = $this->loginView->keepLoggedIn();

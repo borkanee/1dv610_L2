@@ -26,8 +26,11 @@ class SnippetDAL
 
         $snippets = [];
 
-        while ($row = $result->fetch_object()) {
-            array_push($snippets, $row);
+        if ($result !== false) {
+
+            while ($row = $result->fetch_object()) {
+                array_push($snippets, $row);
+            }
         }
         return array_reverse($snippets); // Reverse so that latest snippet is on top.
     }

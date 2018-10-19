@@ -21,9 +21,9 @@ require_once 'view/RegisterView.php';
 require_once 'view/DateTimeView.php';
 require_once 'view/LayoutView.php';
 
-//MAKE SURE ERRORS ARE SHOWN... MIGHT WANT TO TURN THIS OFF ON A PUBLIC SERVER
-error_reporting(E_ALL);
-ini_set('display_errors', 'On');
+//TURN ON WHEN TESTING LOCALLY
+// error_reporting(E_ALL);
+// ni_set('display_errors', 'On');
 
 //CREATE OBJECTS OF MODELS
 $database = new \Model\Database();

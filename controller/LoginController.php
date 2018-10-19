@@ -2,11 +2,13 @@
 
 namespace Controller;
 
+require_once 'view/Message.php';
+
 class LoginController
 {
     private $loginModel;
     private $cookieModel;
-
+    private $message;
     private $loginView;
 
     private $isLoggedIn = false;
@@ -18,6 +20,7 @@ class LoginController
         $this->loginModel = $loginModel;
         $this->loginView = $loginView;
         $this->cookieModel = $cookieModel;
+        $this->message = new \view\Message();
     }
 
     public function manageLogin(): void
@@ -31,11 +34,7 @@ class LoginController
         }
         if ($this->userWantsToLogin && $this->isLoggedIn === false) {
             $this->doLogin();
-        } else if ($this->userWantsToLogin && $this->isLoggedIn && $this->keepLoggedIn) {
-            $this->loginView->cookieMsgPresented = true;
-        } else if ($this->userWantsToLogin && $this->isLoggedIn) {
-            $this->loginView->loginMsgPresented = true;
-        } else if ($this->loginView->userWantsToLogout()) {
+        } else if ($this->loginView->userWantsToLogout() && $this->isLoggedIn) {
             $this->doLogout();
         }
     }
@@ -46,41 +45,44 @@ class LoginController
 
         if ($cookiesAreValid) {
             $this->loginModel->setLoggedIn($this->loginView->getCookieName());
+            $this->loginView->setMessage($this->message->welcomeBackCookie());
             $this->isLoggedIn = true;
-            $this->loginView->welcomeBackWithCookie = true;
         } else {
-            $this->loginView->wrongCookie = true;
+            $this->loginView->setMessage($this->message->wrongCookie());
             $this->loginView->clearCookies();
         }
     }
 
     private function doLogin()
     {
-        $name = $this->loginView->getUserName();
-        $password = $this->loginView->getUserPassword();
+        $userCredentials = $this->loginView->getUserCredentials();
 
-        if ($this->loginModel->userExists($name, $password)) {
-            $this->loginModel->setLoggedIn($name);
-            $this->isLoggedIn = true;
-            if ($this->keepLoggedIn) {
-                $cookieName = $name;
-                $cookiePassword = $this->loginView->generateRandomToken();
-                $expiryDate = time() + 60;
-                $this->cookieModel->storeCookies($cookieName, $cookiePassword, $expiryDate);
-                $this->loginView->setCookies($cookiePassword, $expiryDate);
+        if ($userCredentials) {
+            if ($this->loginModel->userExists($userCredentials)) {
+                $this->loginModel->setLoggedIn($userCredentials->getName());
+                $this->loginView->setMessage($this->message->welcome());
+                $this->isLoggedIn = true;
+                
+                if ($this->keepLoggedIn) {
+                    $cookieName = $userCredentials->getName();
+                    $cookiePassword = $this->loginView->generateRandomToken();
+                    $expiryDate = time() + 60;
+                    $this->cookieModel->storeCookies($cookieName, $cookiePassword, $expiryDate);
+                    $this->loginView->setCookies($cookiePassword, $expiryDate);
+                    $this->loginView->setMessage($this->message->welcomeRemembered());
+                }
+            } else {
+                $this->loginView->setMessage($this->message->wrongCredentials());
             }
         }
     }
 
     private function doLogout()
     {
-        if ($this->isLoggedIn === false) {
-            $this->loginView->logoutMsgPresented = true;
-        } else {
-            $this->cookieModel->removeCookies($this->loginView->getCookieName());
-            $this->loginView->clearCookies();
-            $this->loginModel->setLoggedOut();
-            $this->isLoggedIn = false;
-        }
+        $this->cookieModel->removeCookies($this->loginView->getCookieName());
+        $this->loginView->clearCookies();
+        $this->loginView->setMessage($this->message->bye());
+        $this->loginModel->setLoggedOut();
+        $this->isLoggedIn = false;
     }
 }

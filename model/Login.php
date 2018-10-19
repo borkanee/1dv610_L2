@@ -37,8 +37,11 @@ class Login
         $_SESSION = array();
     }
 
-    public function userExists($username, $password): bool
+    public function userExists(UserCredentials $userCredentials): bool
     {
+        $username = $userCredentials->getName();
+        $password = $userCredentials->getPassword();
+
         $queryString = "SELECT * FROM users WHERE username='$username' AND password='$password'";
         $result = $this->db->querySelect($queryString);
 

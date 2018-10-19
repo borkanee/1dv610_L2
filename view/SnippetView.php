@@ -46,8 +46,21 @@ class SnippetView
                 <input type="submit" name="' . self::$snippetSubmit . '" value="Save" form="' . self::$snippetForm . '" />
             </fieldset>
 
-            ' . $this->snippetsHTML . '
+            ' . $this->userSnippets . '
 		';
+    }
+
+    public function setUserSnippets($snippets)
+    {
+        foreach ($snippets as $snippet) {
+            $this->userSnippets .=
+            '
+            <p>' . $snippet->snippetname . '</p>
+            <div style="width:500px;border:1px solid black;background-color: rgb(231, 231, 231);">
+            <pre><code>' . $snippet->snippetcode . '</code></pre>
+            </div>
+        ';
+        }
     }
 
     public function getSnippetName()
@@ -69,16 +82,5 @@ class SnippetView
         return isset($_POST[self::$snippetSubmit]);
     }
 
-    public function setUserSnippets($snippets)
-    {
-        foreach ($snippets as $snippet) {
-            $this->userSnippets .=
-            '
-            <p>' . $snippet->snippetname . '</p>
-            <div style="width:500px;border:1px solid black;background-color: rgb(231, 231, 231);">
-            <pre><code>'. $snippet->snippetcode . '</code></pre>
-            </div>
-        ';
-        }
-    }
+    public function getSnippet() {}
 }

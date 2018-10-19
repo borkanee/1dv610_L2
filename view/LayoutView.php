@@ -4,6 +4,13 @@ namespace View;
 
 class LayoutView
 {
+    private static $registerLink = '<a href="?register">Register a new user</a>';
+    private static $loginLink = '<a href="?">Back to login</a>';
+    private static $snippetsLink = '<a href="?snippets">My Snippets</a>';
+
+    private static $regiserQuery = 'register';
+    private static $snippetsQuery = 'snippets';
+
     private $loginModel;
     private $loginView;
     private $dateView;
@@ -21,23 +28,23 @@ class LayoutView
 
     public function render()
     {
-        $navLink = '<a href="?register">Register a new user</a>';
+        $navLink = self::$registerLink;
         $pageToRender = $this->loginView->response();
 
-        if (isset($_GET["register"])) {
-            $navLink = '<a href="?">Back to login</a>';
-            $pageToRender = $this->registerView->response();
-            unset($_GET["register"]);
-
-        }
         if ($this->loginModel->isLoggedIn()) {
-            $navLink = '<a href="?snippets">My Snippets</a>';
+            $navLink = self::$snippetsLink;
         }
 
-        if (isset($_GET["snippets"])) {
-            $navLink = '<a href="?">Back to homepage</a>';
+        if (isset($_GET[self::$regiserQuery])) {
+            $navLink = self::$loginLink;
+            $pageToRender = $this->registerView->response();
+            unset($_GET[self::$regiserQuery]);
+
+        }
+        if (isset($_GET[self::$snippetsQuery])) {
+            $navLink = self::$loginLink;
             $pageToRender = $this->snippetView->response();
-            unset($_GET["snippets"]);
+            unset($_GET[self::$snippetsQuery]);
         }
 
         echo '<!DOCTYPE html>

@@ -2,6 +2,8 @@
 
 namespace View;
 
+require_once 'model/NewUser.php';
+
 class RegisterView
 {
     private static $register = 'RegisterView::Register';
@@ -10,7 +12,10 @@ class RegisterView
     private static $passwordRepeat = 'RegisterView::PasswordRepeat';
     private static $messageId = 'RegisterView::Message';
 
+    private static $redirectLocation = 'http://b00e9364.ngrok.io/1dv610_L2/?user=';
+
     private $registerModel;
+    private $message;
 
     public function __construct(\Model\Register $registerModel)
     {
@@ -26,32 +31,7 @@ class RegisterView
      */
     public function response()
     {
-        $message = '';
-
-        if ($this->inputIsSet()) {
-
-            $username = $this->getUserName();
-            $password = $this->getUserPassword();
-            $passwordRepeat = $this->getUserPasswordRepeat();
-
-            if (strlen($username) < 3) {
-                $message = 'Username has too few characters, at least 3 characters. ';
-            }
-            if (strlen($password) < 6) {
-                $message .= 'Password has too few characters, at least 6 characters. ';
-            }
-            if ($password != $passwordRepeat) {
-                $message = 'Passwords do not match.';
-            }
-            if (preg_match("/^[a-zA-Z0-9]+$/", $username) == false) {
-                $message .= 'Username contains invalid characters.';
-                $_POST[self::$name] = strip_tags($_POST[self::$name]);
-            }
-            if ($this->registerModel->userExists($username)) {
-                $message = 'User exists, pick another username.';
-            }
-        }
-        $response = $this->generateRegisterFormHTML($message);
+        $response = $this->generateRegisterFormHTML();
 
         return $response;
     }
@@ -61,13 +41,13 @@ class RegisterView
      * @param $message, String output message
      * @return void, BUT writes to standard output!
      */
-    private function generateRegisterFormHTML($message)
+    private function generateRegisterFormHTML()
     {
         return '
 			<form method="post">
 				<fieldset>
 					<legend>Register a new user - Write username and password</legend>
-					<p id="' . self::$messageId . '">' . $message . '</p>
+					<p id="' . self::$messageId . '">' . $this->message . '</p>
 
 					<label for="' . self::$name . '">Username :</label>
 					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="' . $this->getUserName() . '" />
@@ -84,31 +64,58 @@ class RegisterView
 		';
     }
 
-    private function inputIsSet()
+    public function userWantsToRegister(): bool
     {
-        return isset($_POST[self::$name]) && isset($_POST[self::$password]);
+        return isset($_POST[self::$register]);
     }
 
-    public function getUserName()
+    public function getNewUser()
+    {
+        try {
+            return new \Model\NewUser($this->getUserName(), $this->getUserPassword(), $this->getUserPasswordRepeat());
+        } catch (\Model\EmptyRegistrationException $e) {
+            $this->message = 'Username has too few characters, at least 3 characters. Password has too few characters, at least 6 characters.';
+        } catch (\Model\InvalidCharactersException $e) {
+            $this->message = 'Username contains invalid characters.';
+            $_POST[self::$name] = strip_tags($_POST[self::$name]);
+        } catch (\Model\UserNameShortException $e) {
+            $this->message = 'Username has too few characters, at least 3 characters.';
+        } catch (\Model\PasswordShortException $e) {
+            $this->message = 'Password has too few characters, at least 6 characters.';
+        } catch (\Model\PasswordsNotMatchException $e) {
+            $this->message = 'Passwords do not match.';
+        }
+    }
+
+    public function setRedirect($username)
+    {
+        header('Location: ' . self::$redirectLocation . $username . '');
+        exit;
+    }
+
+    public function setMessage($message)
+    {
+        $this->message = $message;
+    }
+
+    private function getUserName()
     {
         if (isset($_POST[self::$name])) {
             return $_POST[self::$name];
         }
     }
-    public function getUserPassword()
+
+    private function getUserPassword()
     {
         if (isset($_POST[self::$password])) {
             return $_POST[self::$password];
         }
     }
-    public function getUserPasswordRepeat()
+
+    private function getUserPasswordRepeat()
     {
         if (isset($_POST[self::$passwordRepeat])) {
             return $_POST[self::$passwordRepeat];
         }
-    }
-    public function userWantsToRegister(): bool
-    {
-        return isset($_POST[self::$register]);
     }
 }

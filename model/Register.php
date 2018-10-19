@@ -13,9 +13,11 @@ class Register
         $this->db = new \Model\Database();
     }
 
-    public function userExists($username): bool
+    public function userExists(NewUser $user): bool
     {
-        $queryString = "SELECT * FROM users WHERE username='$username'";
+        $name = $user->getName();
+
+        $queryString = "SELECT * FROM users WHERE username='$name'";
         $result = $this->db->querySelect($queryString);
 
         if (mysqli_num_rows($result) > 0) {
@@ -25,16 +27,12 @@ class Register
         }
     }
 
-    public function storeUser($username, $password, $passwordRepeat): bool
+    public function storeUser(NewUser $user): bool
     {
-        if (strlen($username) < 3
-            || strlen($password) < 6
-            || $password != $passwordRepeat
-            || $this->userExists($username)
-            || preg_match("/^[a-zA-Z0-9]+$/", $username) == false) {
-            return false;
-        }
-        $queryString = "INSERT INTO users (username, password) VALUES ('$username', '$password')";
+        $name = $user->getName();
+        $password = $user->getPassword();
+
+        $queryString = "INSERT INTO users (username, password) VALUES ('$name', '$password')";
         $this->db->queryManage($queryString);
         return true;
     }

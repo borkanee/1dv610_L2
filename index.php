@@ -31,6 +31,7 @@ $cookieModel = new \Model\Cookies();
 $snippetModel = new \Model\Snippets();
 
 //CREATE OBJECTS OF THE VIEWS
+$message = new \View\Message();
 $snippetView = new \View\SnippetView();
 $loginView = new \View\LoginView($loginModel);
 $dtv = new \View\DateTimeView();
@@ -40,7 +41,7 @@ $layoutView = new \View\LayoutView($loginModel, $loginView, $dtv, $registerView,
 //CREATE OBJECTS OF THE CONTROLLERS
 $snippetController = new \Controller\SnippetController($snippetView, $loginModel, $snippetModel);
 $loginController = new \Controller\LoginController($loginModel, $cookieModel, $loginView);
-$registerController = new \Controller\RegisterController($registerModel, $registerView);
+$registerController = new \Controller\RegisterController($registerModel, $registerView, $message);
 $appController = new \Controller\AppController($loginController, $registerController, $snippetController, $layoutView);
 
 // START

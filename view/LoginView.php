@@ -2,7 +2,7 @@
 
 namespace View;
 
-require_once 'model/Login.php';
+require_once 'model/UserCredentials.php';
 
 class LoginView
 {
@@ -14,14 +14,11 @@ class LoginView
     private static $cookiePassword = 'LoginView::CookiePassword';
     private static $keep = 'LoginView::KeepMeLoggedIn';
     private static $messageId = 'LoginView::Message';
+    private static $userQuery = 'user';
+
+    private $message = "";
 
     private $loginModel;
-
-    public $logoutMsgPresented = false;
-    public $loginMsgPresented = false;
-    public $cookieMsgPresented = false;
-    public $welcomeBackWithCookie = false;
-    public $wrongCookie = false;
 
     public function __construct(\Model\Login $loginModel)
     {
@@ -37,59 +34,28 @@ class LoginView
      */
     public function response()
     {
-
-        $message = '';
-
-        if ($this->inputIsSet()) {
-
-            $username = $this->getUserName();
-            $password = $this->getUserPassword();
-
-            if (!$username && !$password) {
-                $message = 'Username is missing';
-            } else if (!$password) {
-                $message = 'Password is missing';
-            } else if (!$username) {
-                $message = 'Username is missing';
-            } else if (!$this->loginModel->userExists($username, $password)) {
-                $message = 'Wrong name or password';
-            } else if ($this->loginModel->isLoggedIn() && !$this->keepLoggedIn() && !$this->loginMsgPresented) {
-                $message = 'Welcome';
-            } else if ($this->loginModel->isLoggedIn() && $this->keepLoggedIn() && !$this->cookieMsgPresented) {
-                $message = 'Welcome and you will be remembered';
-            } else {
-                $message = '';
-            }
-        } else if ($this->userWantsToLogout() && !$this->logoutMsgPresented) {
-            $message = 'Bye bye!';
-        } else if ($this->cookiesAreSet() && $this->loginModel->isLoggedIn() && $this->welcomeBackWithCookie) {
-            $message = 'Welcome back with cookie';
-        } else if ($this->wrongCookie) {
-            $message = 'Wrong information in cookies';
-        } else if (isset($_SESSION['registeredUser'])) {
-            $message = "Registered new user.";
-            $_POST[self::$name] = $_SESSION['registeredUser'];
-        } else {
-            $message = "";
+        if (isset($_GET[self::$userQuery])) {
+            $this->message = "Registered new user.";
+            $_POST[self::$name] = $_GET[self::$userQuery];
         }
 
         $response = $this->loginModel->isLoggedIn() ?
-        $this->generateLogoutButtonHTML($message) :
-        $response = $this->generateLoginFormHTML($message);
+        $this->generateLogoutButtonHTML() :
+        $response = $this->generateLoginFormHTML();
 
         return $response;
     }
 
     /**
      * Generate HTML code on the output buffer for the logout button
-     * @param $message, String output message
+     * @param $this->message, String output message
      * @return  void, BUT writes to standard output!
      */
-    private function generateLogoutButtonHTML($message)
+    private function generateLogoutButtonHTML()
     {
         return '
 			<form  method="post" >
-				<p id="' . self::$messageId . '">' . $message . '</p>
+				<p id="' . self::$messageId . '">' . $this->message . '</p>
 				<input type="submit" name="' . self::$logout . '" value="logout"/>
 			</form>
 		';
@@ -97,16 +63,16 @@ class LoginView
 
     /**
      * Generate HTML code on the output buffer for the logout button
-     * @param $message, String output message
+     * @param $this->message, String output message
      * @return  void, BUT writes to standard output!
      */
-    private function generateLoginFormHTML($message)
+    private function generateLoginFormHTML()
     {
         return '
 			<form method="post" >
 				<fieldset>
 					<legend>Login - enter Username and password</legend>
-					<p id="' . self::$messageId . '">' . $message . '</p>
+					<p id="' . self::$messageId . '">' . $this->message . '</p>
 
 					<label for="' . self::$name . '">Username :</label>
 					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="' . $this->getUserName() . '" />
@@ -125,10 +91,7 @@ class LoginView
 
     public function userWantsToLogin(): bool
     {
-        if (isset($_POST[self::$login])) {
-            return true;
-        }
-        return false;
+        return isset($_POST[self::$login]);
     }
 
     public function userWantsToLogout(): bool
@@ -143,11 +106,7 @@ class LoginView
 
     public function keepLoggedIn(): bool
     {
-        if (isset($_POST[self::$keep])) {
-            return true;
-        } else {
-            return false;
-        }
+        return isset($_POST[self::$keep]);
     }
 
     public function setCookies($tempPassword, $expiryDate)
@@ -177,19 +136,6 @@ class LoginView
         return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $strLength);
     }
 
-    public function getUserName()
-    {
-        if (isset($_POST[self::$name])) {
-            return $_POST[self::$name];
-        }
-    }
-    public function getUserPassword()
-    {
-        if (isset($_POST[self::$password])) {
-            return $_POST[self::$password];
-        }
-    }
-
     public function getCookiePassword()
     {
         if (isset($_COOKIE[self::$cookiePassword])) {
@@ -202,5 +148,36 @@ class LoginView
             return $_COOKIE[self::$cookieName];
         }
 
+    }
+
+    public function setMessage($message)
+    {
+        $this->message = $message;
+    }
+    
+    public function getUserCredentials()
+    {
+        try {
+            return new \Model\UserCredentials($this->getUserName(), $this->getUserPassword());
+        } catch (\Model\NameAndPasswordMissingException $e) {
+            $this->message = 'Username is missing';
+        } catch (\Model\PasswordMissingException $e) {
+            $this->message = 'Password is missing';
+        } catch (\Model\UserNameMissingException $e) {
+            $this->message = 'Username is missing';
+        }
+    }
+
+    private function getUserName()
+    {
+        if (isset($_POST[self::$name])) {
+            return $_POST[self::$name];
+        }
+    }
+    private function getUserPassword()
+    {
+        if (isset($_POST[self::$password])) {
+            return $_POST[self::$password];
+        }
     }
 }

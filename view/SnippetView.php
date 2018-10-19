@@ -33,7 +33,7 @@ class SnippetView
             $this->message = 'Name and code is missing.';
         } catch (\Model\SnippetNameShortException $e) {
             $this->message = 'Snippet name has too few characters, at least 3 characters.';
-        } catch (\Model\SnippeCodeMissingException $e) {
+        } catch (\Model\SnippetCodeMissingException $e) {
             $this->message = 'Snippet code is missing.';
         }
     }

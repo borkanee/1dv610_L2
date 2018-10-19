@@ -15,7 +15,7 @@ class SnippetController
         $this->snippetDAL = $snippetDAL;
     }
 
-    public function manageSnippets(): void
+    public function manageSnippets()
     {
         if ($this->sessionModel->isLoggedIn()) {
             $sessionUser = $this->sessionModel->getSessionUser();

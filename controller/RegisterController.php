@@ -15,7 +15,7 @@ class RegisterController
         $this->message = $message;
     }
 
-    public function manageRegistration(): void
+    public function manageRegistration()
     {
         if ($this->registerView->userWantsToRegister()) {
             $this->doRegistration();

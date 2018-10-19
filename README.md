@@ -35,7 +35,7 @@ A user is authenticated. Ex. UC1, UC3
    1. System presents an error message
    2. Step 3 in main scenario
 
-## UC6 Viewing previous snippets
+## UC6 View previous snippets
 ### Preconditions
 A user is authenticated. Ex. UC1, UC3
 ### Main scenario

@@ -1,3 +1,6 @@
+# 1dv610_L2
+Assignment from course [1dv610](http://coursepress.lnu.se/kurs/introduktiontillmjukvarukvalitet/) at Linnaeus University. A simple login service with focus on code quality. Written in PHP.
+
 # INSTALL
 - Clone the repo, add a config folder, and add a file `Config.php` inside the config folder.
 - The Config-file should look like this:
